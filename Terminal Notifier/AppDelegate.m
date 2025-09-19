@@ -1,15 +1,14 @@
 #import "AppDelegate.h"
 #import <UserNotifications/UserNotifications.h>
 
-static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
+static NSString *const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
 
 @interface AppDelegate () <UNUserNotificationCenterDelegate>
-@property (atomic) BOOL handledResponse;
+@property(atomic) BOOL handledResponse;
 @end
 
 @implementation NSUserDefaults (TerminalNotifierSubscript)
-- (id)objectForKeyedSubscript:(id)key
-{
+- (id)objectForKeyedSubscript:(id)key {
   id obj = [self objectForKey:key];
   if ([obj isKindOfClass:[NSString class]] && [(NSString *)obj hasPrefix:@"\\"]) {
     return [(NSString *)obj substringFromIndex:1];
@@ -20,62 +19,67 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
 
 @implementation AppDelegate
 
-+ (void)initializeUserDefaults
-{
++ (void)initializeUserDefaults {
   NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-  NSDictionary *appDefaults = @{ @"sender": kTerminalNotifierDefaultSender };
+  NSDictionary *appDefaults = @{@"sender" : kTerminalNotifierDefaultSender};
   [defaults registerDefaults:appDefaults];
 }
 
-- (void)printHelpBanner
-{
-  const char *appName = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleExecutable"] UTF8String];
-  const char *appVersion = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] UTF8String];
-  printf("%s (%s) is a command-line tool to send macOS User Notifications.\n"
-         "\n"
-         "Usage: %s -[message|list|remove] [VALUE|ID|ID] [options]\n"
-         "\n"
-         "   Either of these is required (unless message data is piped to the tool):\n"
-         "\n"
-         "       -help              Display this help banner.\n"
-         "       -version           Display terminal-notifier version.\n"
-         "       -message VALUE     The notification message.\n"
-         "       -remove ID         Removes a notification with the specified ‘group’ ID.\n"
-         "       -list ID           If the specified ‘group’ ID exists show when it was delivered,\n"
-         "                          or use ‘ALL’ as ID to see all notifications.\n"
-         "                          The output is a tab-separated list.\n"
-         "\n"
-         "   Optional:\n"
-         "\n"
-         "       -title VALUE       The notification title. Defaults to ‘Terminal’.\n"
-         "       -subtitle VALUE    The notification subtitle.\n"
-         "       -sound NAME        The name of a sound to play when the notification appears.\n"
-         "       -group ID          A string which identifies the group the notifications belong to.\n"
-         "                          Old notifications with the same ID will be removed.\n"
-         "       -activate ID       The bundle identifier of the application to activate when the user clicks the notification.\n"
-         "       -sender ID         The bundle identifier of the application that should be shown as the sender.\n"
-         "       -appIcon URL       (Deprecated) Replaced by -contentImage on modern macOS releases.\n"
-         "       -contentImage URL  The URL of an image to attach to the notification.\n"
-         "       -open URL          The URL of a resource to open when the user clicks the notification.\n"
-         "       -execute COMMAND   A shell command to perform when the user clicks the notification.\n"
-         "       -ignoreDnD         Request time-sensitive delivery (Focus).\n"
-         "\n"
-         "When the user activates a notification, the results are logged to the system logs.\n"
-         "Use Console.app to view these logs.\n"
-         "\n"
-         "For more information see https://github.com/julienXX/terminal-notifier.\n",
-         appName, appVersion, appName);
+- (void)printHelpBanner {
+  const char *appName =
+      [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleExecutable"] UTF8String];
+  const char *appVersion =
+      [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] UTF8String];
+  printf(
+      "%s (%s) is a command-line tool to send macOS User Notifications.\n"
+      "\n"
+      "Usage: %s -[message|list|remove] [VALUE|ID|ID] [options]\n"
+      "\n"
+      "   Either of these is required (unless message data is piped to the tool):\n"
+      "\n"
+      "       -help              Display this help banner.\n"
+      "       -version           Display terminal-notifier version.\n"
+      "       -message VALUE     The notification message.\n"
+      "       -remove ID         Removes a notification with the specified ‘group’ ID.\n"
+      "       -list ID           If the specified ‘group’ ID exists show when it was delivered,\n"
+      "                          or use ‘ALL’ as ID to see all notifications.\n"
+      "                          The output is a tab-separated list.\n"
+      "\n"
+      "   Optional:\n"
+      "\n"
+      "       -title VALUE       The notification title. Defaults to ‘Terminal’.\n"
+      "       -subtitle VALUE    The notification subtitle.\n"
+      "       -sound NAME        The name of a sound to play when the notification appears.\n"
+      "       -group ID          A string which identifies the group the notifications belong to.\n"
+      "                          Old notifications with the same ID will be removed.\n"
+      "       -activate ID       The bundle identifier of the application to activate when the "
+      "user clicks the notification.\n"
+      "       -sender ID         The bundle identifier of the application that should be shown as "
+      "the sender.\n"
+      "       -appIcon URL       (Deprecated) Replaced by -contentImage on modern macOS releases.\n"
+      "       -contentImage URL  The URL of an image to attach to the notification.\n"
+      "       -open URL          The URL of a resource to open when the user clicks the "
+      "notification.\n"
+      "       -execute COMMAND   A shell command to perform when the user clicks the "
+      "notification.\n"
+      "       -ignoreDnD         Request time-sensitive delivery (Focus).\n"
+      "\n"
+      "When the user activates a notification, the results are logged to the system logs.\n"
+      "Use Console.app to view these logs.\n"
+      "\n"
+      "For more information see https://github.com/julienXX/terminal-notifier.\n",
+      appName, appVersion, appName);
 }
 
-- (void)printVersion
-{
-  const char *appName = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleExecutable"] UTF8String];
-  const char *appVersion = [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] UTF8String];
+- (void)printVersion {
+  const char *appName =
+      [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleExecutable"] UTF8String];
+  const char *appVersion =
+      [[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] UTF8String];
   printf("%s %s.\n", appName, appVersion);
 }
 
-- (void)applicationDidFinishLaunching:(NSNotification *)notification
-{
+- (void)applicationDidFinishLaunching:(NSNotification *)notification {
   (void)notification;
 
   [[self class] initializeUserDefaults];
@@ -144,8 +148,7 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
 
 #pragma mark - Authorization
 
-- (BOOL)ensureAuthorization
-{
+- (BOOL)ensureAuthorization {
   __block BOOL authorized = NO;
   dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 
@@ -164,13 +167,13 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
       case UNAuthorizationStatusNotDetermined: {
         UNAuthorizationOptions options = UNAuthorizationOptionAlert | UNAuthorizationOptionSound;
         [center requestAuthorizationWithOptions:options
-                               completionHandler:^(BOOL granted, NSError *error) {
-          if (!granted && error) {
-            NSLog(@"Authorization failed: %@", error.localizedDescription);
-          }
-          authorized = granted;
-          dispatch_semaphore_signal(semaphore);
-        }];
+                              completionHandler:^(BOOL granted, NSError *error) {
+                                if (!granted && error) {
+                                  NSLog(@"Authorization failed: %@", error.localizedDescription);
+                                }
+                                authorized = granted;
+                                dispatch_semaphore_signal(semaphore);
+                              }];
         break;
       }
       default:
@@ -191,8 +194,9 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
 
 #pragma mark - Option handling
 
-- (void)populateOptions:(NSMutableDictionary *)options withDefaults:(NSUserDefaults *)defaults arguments:(NSArray<NSString *> *)arguments
-{
+- (void)populateOptions:(NSMutableDictionary *)options
+           withDefaults:(NSUserDefaults *)defaults
+              arguments:(NSArray<NSString *> *)arguments {
   NSString *activate = defaults[@"activate"];
   if (activate.length > 0) {
     options[@"bundleID"] = activate;
@@ -211,7 +215,8 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
   NSString *open = defaults[@"open"];
   if (open.length > 0) {
     NSURL *candidateURL = [NSURL URLWithString:open];
-    if ((candidateURL && candidateURL.scheme.length > 0 && candidateURL.host.length > 0) || candidateURL.fileURL) {
+    if ((candidateURL && candidateURL.scheme.length > 0 && candidateURL.host.length > 0) ||
+        candidateURL.fileURL) {
       options[@"open"] = open;
     } else {
       NSLog(@"'%@' is not a valid URI.", open);
@@ -237,18 +242,18 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
   NSString *sender = defaults[@"sender"];
   NSString *bundleIdentifier = [[NSBundle mainBundle] bundleIdentifier];
   if (sender.length > 0 && ![sender isEqualToString:bundleIdentifier]) {
-    NSLog(@"Custom senders require code-signing with the desired bundle ID; ignoring '%@'.", sender);
+    NSLog(@"Custom senders require code-signing with the desired bundle ID; ignoring '%@'.",
+          sender);
   }
 }
 
 #pragma mark - Notification actions
 
 - (void)deliverNotificationWithTitle:(NSString *)title
-                             subtitle:(NSString *)subtitle
-                              message:(NSString *)message
-                              options:(NSDictionary *)options
-                                sound:(NSString *)sound
-{
+                            subtitle:(NSString *)subtitle
+                             message:(NSString *)message
+                             options:(NSDictionary *)options
+                               sound:(NSString *)sound {
   NSMutableDictionary *mutableOptions = [options mutableCopy];
   NSString *groupID = mutableOptions[@"groupID"];
   if (groupID.length > 0) {
@@ -263,7 +268,7 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
   content.body = message ?: @"";
 
   NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-  for (NSString *key in @[@"bundleID", @"groupID", @"command", @"open"]) {
+  for (NSString *key in @[ @"bundleID", @"groupID", @"command", @"open" ]) {
     id value = mutableOptions[key];
     if (value) {
       userInfo[key] = value;
@@ -298,16 +303,16 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
 
   NSString *identifier = groupID.length > 0 ? groupID : [[NSUUID UUID] UUIDString];
   UNNotificationRequest *request = [UNNotificationRequest requestWithIdentifier:identifier
-                                                                          content:content
-                                                                          trigger:nil];
+                                                                        content:content
+                                                                        trigger:nil];
 
   dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
   __block NSError *addError = nil;
   [[UNUserNotificationCenter currentNotificationCenter] addNotificationRequest:request
-                                                            withCompletionHandler:^(NSError *error) {
-    addError = error;
-    dispatch_semaphore_signal(semaphore);
-  }];
+                                                         withCompletionHandler:^(NSError *error) {
+                                                           addError = error;
+                                                           dispatch_semaphore_signal(semaphore);
+                                                         }];
 
   dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 
@@ -319,13 +324,13 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
   exit(0);
 }
 
-- (NSArray<UNNotificationAttachment *> *)attachmentsForOptions:(NSDictionary *)options
-{
+- (NSArray<UNNotificationAttachment *> *)attachmentsForOptions:(NSDictionary *)options {
   NSMutableArray<UNNotificationAttachment *> *attachments = [NSMutableArray array];
 
   NSString *contentImage = options[@"contentImage"];
   if (contentImage.length > 0) {
-    UNNotificationAttachment *attachment = [self attachmentWithIdentifier:@"contentImage" urlString:contentImage];
+    UNNotificationAttachment *attachment = [self attachmentWithIdentifier:@"contentImage"
+                                                                urlString:contentImage];
     if (attachment) {
       [attachments addObject:attachment];
     }
@@ -333,7 +338,8 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
 
   NSString *appIcon = options[@"appIcon"];
   if (appIcon.length > 0) {
-    UNNotificationAttachment *attachment = [self attachmentWithIdentifier:@"appIcon" urlString:appIcon];
+    UNNotificationAttachment *attachment = [self attachmentWithIdentifier:@"appIcon"
+                                                                urlString:appIcon];
     if (attachment) {
       [attachments addObject:attachment];
     }
@@ -342,8 +348,8 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
   return attachments;
 }
 
-- (UNNotificationAttachment *)attachmentWithIdentifier:(NSString *)identifier urlString:(NSString *)urlString
-{
+- (UNNotificationAttachment *)attachmentWithIdentifier:(NSString *)identifier
+                                             urlString:(NSString *)urlString {
   NSURL *url = [NSURL URLWithString:urlString];
   if (url.scheme.length == 0) {
     url = [NSURL fileURLWithPath:urlString];
@@ -362,7 +368,10 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
     NSString *temporaryDirectory = NSTemporaryDirectory();
     NSString *extension = url.pathExtension.length > 0 ? url.pathExtension : @"tmp";
     NSString *filename = [[NSUUID UUID] UUIDString];
-    NSURL *temporaryURL = [NSURL fileURLWithPath:[temporaryDirectory stringByAppendingPathComponent:[filename stringByAppendingPathExtension:extension]]];
+    NSURL *temporaryURL =
+        [NSURL fileURLWithPath:[temporaryDirectory
+                                   stringByAppendingPathComponent:
+                                       [filename stringByAppendingPathExtension:extension]]];
     if (![data writeToURL:temporaryURL options:NSDataWritingAtomic error:&error]) {
       NSLog(@"Unable to persist attachment %@: %@", urlString, error.localizedDescription);
       return nil;
@@ -370,10 +379,11 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
     fileURL = temporaryURL;
   }
 
-  UNNotificationAttachment *attachment = [UNNotificationAttachment attachmentWithIdentifier:identifier
-                                                                                        URL:fileURL
-                                                                                    options:nil
-                                                                                      error:&error];
+  UNNotificationAttachment *attachment =
+      [UNNotificationAttachment attachmentWithIdentifier:identifier
+                                                     URL:fileURL
+                                                 options:nil
+                                                   error:&error];
   if (!attachment && error) {
     NSLog(@"Unable to attach image %@: %@", urlString, error.localizedDescription);
   }
@@ -381,15 +391,15 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
   return attachment;
 }
 
-- (void)listNotificationWithGroupID:(NSString *)listGroupID
-{
+- (void)listNotificationWithGroupID:(NSString *)listGroupID {
   dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
   __block NSArray<UNNotification *> *deliveredNotifications = @[];
 
-  [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
-    deliveredNotifications = notifications;
-    dispatch_semaphore_signal(semaphore);
-  }];
+  [[UNUserNotificationCenter currentNotificationCenter]
+      getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
+        deliveredNotifications = notifications;
+        dispatch_semaphore_signal(semaphore);
+      }];
 
   dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 
@@ -403,12 +413,8 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
     NSString *deliveredAt = [[notification date] description];
 
     if ([listGroupID isEqualToString:@"ALL"] || [deliveredGroupID isEqualToString:listGroupID]) {
-      [lines addObject:[NSString stringWithFormat:@"%@\t%@\t%@\t%@\t%@",
-                        deliveredGroupID ?: @"",
-                        title,
-                        subtitle,
-                        body,
-                        deliveredAt]];
+      [lines addObject:[NSString stringWithFormat:@"%@\t%@\t%@\t%@\t%@", deliveredGroupID ?: @"",
+                                                  title, subtitle, body, deliveredAt]];
     }
   }
 
@@ -422,15 +428,15 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
   exit(0);
 }
 
-- (BOOL)removeNotificationWithGroupID:(NSString *)groupID logRemovals:(BOOL)logRemovals
-{
+- (BOOL)removeNotificationWithGroupID:(NSString *)groupID logRemovals:(BOOL)logRemovals {
   dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
   __block NSArray<UNNotification *> *deliveredNotifications = @[];
 
-  [[UNUserNotificationCenter currentNotificationCenter] getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
-    deliveredNotifications = notifications;
-    dispatch_semaphore_signal(semaphore);
-  }];
+  [[UNUserNotificationCenter currentNotificationCenter]
+      getDeliveredNotificationsWithCompletionHandler:^(NSArray<UNNotification *> *notifications) {
+        deliveredNotifications = notifications;
+        dispatch_semaphore_signal(semaphore);
+      }];
 
   dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
 
@@ -442,7 +448,8 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
     if (removed && logRemovals) {
       for (UNNotification *notification in deliveredNotifications) {
         NSString *deliveredAt = [[notification date] description];
-        printf("* Removing previously sent notification, which was sent on: %s\n", [deliveredAt UTF8String]);
+        printf("* Removing previously sent notification, which was sent on: %s\n",
+               [deliveredAt UTF8String]);
       }
     }
     [[UNUserNotificationCenter currentNotificationCenter] removeAllDeliveredNotifications];
@@ -456,14 +463,16 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
       [identifiers addObject:notification.request.identifier];
       if (logRemovals) {
         NSString *deliveredAt = [[notification date] description];
-        printf("* Removing previously sent notification, which was sent on: %s\n", [deliveredAt UTF8String]);
+        printf("* Removing previously sent notification, which was sent on: %s\n",
+               [deliveredAt UTF8String]);
       }
     }
   }
 
   if (identifiers.count > 0) {
     removed = YES;
-    [[UNUserNotificationCenter currentNotificationCenter] removeDeliveredNotificationsWithIdentifiers:identifiers];
+    [[UNUserNotificationCenter currentNotificationCenter]
+        removeDeliveredNotificationsWithIdentifiers:identifiers];
   }
 
   return removed;
@@ -473,17 +482,16 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
        willPresentNotification:(UNNotification *)notification
-         withCompletionHandler:(void (^)(UNNotificationPresentationOptions options))completionHandler
-{
+         withCompletionHandler:
+             (void (^)(UNNotificationPresentationOptions options))completionHandler {
   (void)center;
   (void)notification;
   completionHandler(UNNotificationPresentationOptionAlert | UNNotificationPresentationOptionSound);
 }
 
 - (void)userNotificationCenter:(UNUserNotificationCenter *)center
- didReceiveNotificationResponse:(UNNotificationResponse *)response
-          withCompletionHandler:(void (^)(void))completionHandler
-{
+    didReceiveNotificationResponse:(UNNotificationResponse *)response
+             withCompletionHandler:(void (^)(void))completionHandler {
   (void)center;
 
   self.handledResponse = YES;
@@ -505,7 +513,8 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
   NSLog(@"  command: %@", command);
   NSLog(@"     open: %@", open);
 
-  [[UNUserNotificationCenter currentNotificationCenter] removeDeliveredNotificationsWithIdentifiers:@[notification.request.identifier]];
+  [[UNUserNotificationCenter currentNotificationCenter]
+      removeDeliveredNotificationsWithIdentifiers:@[ notification.request.identifier ]];
 
   BOOL success = YES;
   if (bundleID.length > 0) success &= [self activateAppWithBundleID:bundleID];
@@ -518,18 +527,17 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
 
 #pragma mark - Helpers
 
-- (void)deferHelpUntilPendingResponse
-{
-  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-    if (!self.handledResponse) {
-      [self printHelpBanner];
-      exit(1);
-    }
-  });
+- (void)deferHelpUntilPendingResponse {
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)),
+                 dispatch_get_main_queue(), ^{
+                   if (!self.handledResponse) {
+                     [self printHelpBanner];
+                     exit(1);
+                   }
+                 });
 }
 
-- (BOOL)openURLString:(NSString *)urlString
-{
+- (BOOL)openURLString:(NSString *)urlString {
   NSURL *url = [NSURL URLWithString:urlString];
   if (!url) {
     NSLog(@"Unable to construct URL from '%@'.", urlString);
@@ -548,9 +556,9 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
   return opened;
 }
 
-- (BOOL)activateAppWithBundleID:(NSString *)bundleID
-{
-  NSArray<NSRunningApplication *> *runningApps = [NSRunningApplication runningApplicationsWithBundleIdentifier:bundleID];
+- (BOOL)activateAppWithBundleID:(NSString *)bundleID {
+  NSArray<NSRunningApplication *> *runningApps =
+      [NSRunningApplication runningApplicationsWithBundleIdentifier:bundleID];
   NSRunningApplication *application = runningApps.firstObject;
 
   if (!application) {
@@ -561,10 +569,11 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
     }
 
     NSError *launchError = nil;
-    BOOL launched = [[NSWorkspace sharedWorkspace] launchApplicationAtURL:appURL
-                                                                  options:(NSWorkspaceLaunchAsync | NSWorkspaceLaunchNewInstance)
-                                                            configuration:@{}
-                                                                    error:&launchError];
+    BOOL launched = [[NSWorkspace sharedWorkspace]
+        launchApplicationAtURL:appURL
+                       options:(NSWorkspaceLaunchAsync | NSWorkspaceLaunchNewInstance)
+                 configuration:@{}
+                         error:&launchError];
     if (!launched) {
       NSLog(@"Unable to launch application %@: %@", bundleID, launchError.localizedDescription);
       return NO;
@@ -581,11 +590,10 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
   return [application activateWithOptions:NSApplicationActivateIgnoringOtherApps];
 }
 
-- (BOOL)executeShellCommand:(NSString *)command
-{
+- (BOOL)executeShellCommand:(NSString *)command {
   NSTask *task = [[NSTask alloc] init];
   task.executableURL = [NSURL fileURLWithPath:@"/bin/sh"];
-  task.arguments = @[@"-c", command];
+  task.arguments = @[ @"-c", command ];
 
   NSPipe *pipe = [NSPipe pipe];
   task.standardOutput = pipe;
@@ -602,7 +610,8 @@ static NSString * const kTerminalNotifierDefaultSender = @"com.apple.Terminal";
 
   NSData *outputData = [[pipe fileHandleForReading] readDataToEndOfFile];
   if (outputData.length > 0) {
-    NSString *outputString = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
+    NSString *outputString = [[NSString alloc] initWithData:outputData
+                                                   encoding:NSUTF8StringEncoding];
     if (outputString.length > 0) {
       NSLog(@"command output:\n%@", outputString);
     }
