@@ -3,7 +3,7 @@
 [![GitHub release](https://img.shields.io/github/release/julienXX/terminal-notifier.svg)](https://github.com/julienXX/terminal-notifier/releases)
 
 terminal-notifier is a command-line tool to send macOS User Notifications,
-which are available on macOS 10.10 and higher.
+which are available on macOS 10.14 and higher as of the current release.
 
 
 ## News
@@ -20,9 +20,9 @@ Sticking to two smaller specialized tools will hopefully make them easier to mai
 * It is currently packaged as an application bundle, because `NSUserNotification`
   does not work from a ‘Foundation tool’. [radar://11956694](radar://11956694)
 
-* If you intend to package terminal-notifier with your app to distribute it on the Mac App Store, please use 1.5.2; version 1.6.0+ uses a private method override, which is not allowed in the App Store Guidelines.
+* Beginning with 2.x, terminal-notifier uses the modern `UserNotifications` framework. This requires macOS 10.14 or newer and removes the private API overrides that earlier builds relied on.
 
-* If you're using macOS < 10.10 you should use terminal-notifier 1.6.3.
+* If you need to target macOS releases earlier than 10.14, stick to terminal-notifier 2.0.0 or earlier.
 
 * If you're looking for sticky notifications or more actions on a notification please use [alerter](https://github.com/vjeantet/alerter)
 
@@ -184,14 +184,25 @@ Examples application IDs are:
 
 `-sender ID`
 
-Fakes the sender application of the notification. This uses the specified
-application’s icon, and will launch it when the notification is clicked.
+Requests that the notification appear to come from the application identified by
+`ID`. Because macOS now enforces bundle identities at runtime, you must
+code-sign the helper with the desired bundle identifier before this flag will be
+honoured.
 
-Using this option fakes the sender application, so that the notification system
-will launch that application when the notification is clicked. Because of this
-it is important to note that you cannot combine this with options like
-`-execute` and `-activate` which depend on the sender of the notification to be
-‘terminal-notifier’ to perform its work.
+Typical workflow:
+
+1. Duplicate the app bundle: `cp -R terminal-notifier.app MyNotifier.app`
+2. Update the bundle identifier: `/usr/libexec/PlistBuddy -c "Set :CFBundleIdentifier com.example.sender" MyNotifier.app/Contents/Info.plist`
+3. (Optional) Replace `MyNotifier.app/Contents/Resources/AppIcon.icns` with the icon you want macOS to display.
+4. Codesign it with a certificate that matches that identifier:
+   `codesign --force --deep --options runtime --sign "Apple Development: Your Name" MyNotifier.app`
+
+Once the helper is signed, `-sender com.example.sender` will be accepted and the
+system will display the icon associated with that signed bundle. Without these
+steps the option is ignored and a warning is logged.
+
+Because the notification now launches that application when clicked, `-sender`
+still cannot be combined with `-execute` or `-activate`.
 
 For information on the `ID`, see the `-activate` option.
 
@@ -199,9 +210,10 @@ For information on the `ID`, see the `-activate` option.
 
 `-appIcon PATH`
 
-Specify an image `PATH` to display instead of the application icon.
-
-**WARNING: This option is subject to change, since it relies on a private method.**
+Attach an additional image to the notification. macOS no longer allows
+terminal-notifier to override its application icon at runtime; instead the image
+is delivered as an attachment alongside the notification content. Prefer
+`-contentImage` for richer layouts.
 
 -------------------------------------------------------------------------------
 
